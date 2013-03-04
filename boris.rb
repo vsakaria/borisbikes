@@ -8,6 +8,10 @@ class Bike
     @bike_id, @functioning = bike_id, functioning
   end
 
+  def breakBike
+     @functioning = false 
+  end
+
   def to_s
     puts "The bike id is:#{@bike_id} The status of the bike is: #{@functioning}"
   end
@@ -74,12 +78,22 @@ class Person
     @bike = bike 
   end
 
+  def bike
+    @bike
+  end 
+    
   def status
     @status
   end
 
+  def rideBike
+    rand(4).odd? ? "I like to ride my Bycle I like to ride it fast" : "Haaaaaaallllllllllaaaaaaa"
+    rand(4).odd? ? @bike.breakBike : true
+  end               
+
   def to_s
-    puts "The persons id is:#{@id} The status of the person is: #{@status}"
+    #Ask teacher how to print the id of bike in few lines could use a block method
+    puts "The persons id is: #{@id} - The status of the person is: #{@status} - The bike assign to is: #{@bike ? @bike : "No bike assigned"}"
   end
 
 end
@@ -92,7 +106,8 @@ class Control
   def initialize
      createStation
      createPeople
-     #rentBike
+     rentBike
+     rideBike
   end
 
   def createStation
@@ -118,9 +133,16 @@ class Control
 
   def rentBike
 
-    @people.each { |i| person = @people|i| }   
+    @people.each { |person| person.status ? person.assign_bike( @station.release_bike ) : false }   
+    puts "After bike assigned to person"
+    @people.each { |person| person.to_s}
+   
+  end
 
-         #puts @station.release_bik
+  def rideBike
+    @people.each{ |person| person.bike ? person.rideBike : false}
+      puts "After person rides bike"
+     @people.each { |person| puts person.bike}
   end
 end
 
