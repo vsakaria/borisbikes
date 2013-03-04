@@ -60,9 +60,22 @@ end
 
 ##############################################################
 
+
+
 class Person
+
+
+
   def initialize(id , status)
     @id, @status = id, status 
+  end
+
+  def assign_bike(bike)
+    @bike = bike 
+  end
+
+  def status
+    @status
   end
 
   def to_s
@@ -79,17 +92,18 @@ class Control
   def initialize
      createStation
      createPeople
+     #rentBike
   end
 
   def createStation
-     station = Station.new
+     @station = Station.new
       
       10.times do |i| 
-        station << Bike.new(i + 1, true)   
+        @station << Bike.new(i + 1, true)   
       end 
-      puts station.to_s
-      puts station.release_bike
-      end
+      puts @station.to_s
+      
+  end
 
   def createPeople
      @people = []
@@ -98,10 +112,16 @@ class Control
     10.times do |i| 
       @people << Person.new(i + 1, rand(2).zero?)
     end
-    
+
     puts @people.to_s
   end
 
+  def rentBike
+
+    @people.each { |i| person = @people|i| }   
+
+         #puts @station.release_bik
+  end
 end
 
 c = Control.new
