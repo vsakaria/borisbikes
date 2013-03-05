@@ -17,6 +17,10 @@ class Bike
      @functioning = false 
   end
 
+  def fixbike
+    @functioning = true
+  end
+
   def to_s
     puts "The bike id is:#{@bike_id} The status of the bike is: #{@functioning}"
   end
@@ -64,11 +68,13 @@ class Van
     @bikes = []
   end
 
-  def addbike(bike)
+  def << (bike)
     @bikes << bike
   end
 
-  
+  def removebike
+    @bikes.pop
+  end
 
   def deliver
   end
@@ -77,6 +83,23 @@ end
 ##############################################################
 
 class Garage
+
+  attr_accessor :bikes
+  def initialize 
+    @bikes = []
+  end
+
+  def << (bike)
+    @bikes << bike
+  end
+
+  def realeasebikes
+    @bikes.pop
+  end
+
+  def fixbikes
+    @bikes.each{|bike| bike.fixbike }
+  end
 end
 
 ##############################################################
@@ -132,6 +155,7 @@ class Control
   def initialize
 
       @van = Van.new
+      @garage = Garage.new
 
      createStation
      createPeople
@@ -139,7 +163,10 @@ class Control
      rideBike #here bikes are randomly broken
      returnBike
      pickUpBrokenBikes
-    
+     delieverbrokenbikes
+     fixbikes
+     collectbikes
+     dockbike
 
   end
 
@@ -194,13 +221,46 @@ class Control
     puts "Check broken bike"
     #puts @station.bikes.inspect
     
+    puts "Print station"
     puts @station
 
+    puts "Print van"
+    #code smell double call of some bikes see outout
+    @station.bikes.each{ |bike| puts( bike.functioning ? "All is good" : @van << (bike) ) } 
     
-    @station.bikes.each{ |bike| puts( bike.functioning ? "All is good" : @van.addbike(bike) ) } 
-  
+    puts "Print Van Array"
+    puts @van.bikes.to_s
   end
-end
+
+  def delieverbrokenbikes
+    @van.bikes.count.times { @garage<<( @van.removebike )}
+    puts "Status of Van"
+    puts @van.inspect
+
+    puts "Bikes in Garage "
+    puts @garage.inspect
+  end 
+
+  def fixbikes
+    @garage.fixbikes
+    puts "Bikes after garage"
+    puts @garage.inspect
+  end
+
+  def collectbikes
+      
+      @garage.bikes.count.times { @van << @garage.realeasebikes} 
+      puts "Bikes being collected"
+      puts @van.inspect
+  end
+
+  def dockbike 
+    @van.bikes.count.times{ @station<< @van.removebike}
+
+      puts "Final Station "
+      puts @station.inspect
+  end 
+end 
 
 c = Control.new
 
