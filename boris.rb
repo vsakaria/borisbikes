@@ -3,7 +3,12 @@
 
 ##############################################################
 
+
+
 class Bike
+
+  attr_accessor :functioning
+
   def  initialize (bike_id, functioning)
     @bike_id, @functioning = bike_id, functioning
   end
@@ -21,6 +26,9 @@ end
 
 
 class Station
+
+  attr_accessor :bikes 
+  
   def initialize
     @CAPACITY = 10
     @bikes = [] 
@@ -37,6 +45,8 @@ class Station
   def release_bike
     @bikes.pop
   end
+
+
   
   def report
 
@@ -46,12 +56,19 @@ end
 ##############################################################
 
 class Van
+
+  attr_accessor :bikes
+
   def initialize
-    @CAPACITY = 4
+    @CAPACITY = 8
+    @bikes = []
   end
 
-  def collect
+  def addbike(bike)
+    @bikes << bike
   end
+
+  
 
   def deliver
   end
@@ -68,28 +85,37 @@ end
 
 class Person
 
-
+  attr_accessor :bike
+  #bike and bike= methods are created to get and set repectivitly 
 
   def initialize(id , status)
-    @id, @status = id, status 
+    @id, @status = id, status
   end
 
-  def assign_bike(bike)
-    @bike = bike 
-  end
+  # def assign_bike(bike)
+  #   @bike = bike 
+  # end
 
-  def bike
-    @bike
-  end 
+  # def bike
+  #   @bike
+  # end 
+
     
   def status
     @status
   end
 
   def rideBike
-    rand(4).odd? ? "I like to ride my Bycle I like to ride it fast" : "Haaaaaaallllllllllaaaaaaa"
+    #rand(4).odd? ? puts {"I like to ride my Bycle I like to ride it fast" }: puts {"Haaaaaaallllllllllaaaaaaa"}
     rand(4).odd? ? @bike.breakBike : true
-  end               
+  end  
+
+  def returnBike
+    #return_bike = @bike
+    #@bike = nil
+    #return_bike
+  @bike and remove_instance_variable(:@bike)  
+  end             
 
   def to_s
     #Ask teacher how to print the id of bike in few lines could use a block method
@@ -104,10 +130,17 @@ end
 class Control
 
   def initialize
+
+      @van = Van.new
+
      createStation
      createPeople
      rentBike
-     rideBike
+     rideBike #here bikes are randomly broken
+     returnBike
+     pickUpBrokenBikes
+    
+
   end
 
   def createStation
@@ -116,7 +149,8 @@ class Control
       10.times do |i| 
         @station << Bike.new(i + 1, true)   
       end 
-      puts @station.to_s
+      puts @station.inspect
+      #puts @station.to_s
       
   end
 
@@ -128,21 +162,43 @@ class Control
       @people << Person.new(i + 1, rand(2).zero?)
     end
 
-    puts @people.to_s
+    #puts @people.to_s
   end
 
   def rentBike
 
-    @people.each { |person| person.status ? person.assign_bike( @station.release_bike ) : false }   
-    puts "After bike assigned to person"
+    @people.each { |person| person.status ? person.bike=( @station.release_bike ) : false }   
+    puts "After bike assigned to person ---------------------------------"
     @people.each { |person| person.to_s}
    
   end
 
   def rideBike
     @people.each{ |person| person.bike ? person.rideBike : false}
-      puts "After person rides bike"
-     @people.each { |person| puts person.bike}
+      puts "After person rides bike --------------------------------"
+     @people.each { |person| puts (person.bike ?  person.bike : "At home chilling")} 
+     puts @station.bikes.inspect
+  end
+
+  def returnBike
+    
+    puts "After person returns bike ------------------------------------"
+    @people.each{ |person|  person.bike ? @station << person.returnBike : false }
+    
+    puts @station.bikes.inspect
+    #puts @station.to_s
+    
+  end
+
+  def pickUpBrokenBikes
+    puts "Check broken bike"
+    #puts @station.bikes.inspect
+    
+    puts @station
+
+    
+    @station.bikes.each{ |bike| puts( bike.functioning ? "All is good" : @van.addbike(bike) ) } 
+  
   end
 end
 
