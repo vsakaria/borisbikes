@@ -1,154 +1,10 @@
 #!/user/bin/env ruby
+require "./person"
+require "./garage"
+require "./van"
+require "./station"
+require "./bike"
 
-
-##############################################################
-
-
-
-class Bike
-
-  attr_accessor :functioning
-
-  def  initialize (bike_id, functioning)
-    @bike_id, @functioning = bike_id, functioning
-  end
-
-  def breakBike
-     @functioning = false 
-  end
-
-  def fixbike
-    @functioning = true
-  end
-
-  def to_s
-    puts "The bike id is:#{@bike_id} The status of the bike is: #{@functioning}"
-  end
-end
-
-##############################################################
-
-
-class Station
-
-  attr_accessor :bikes 
-  
-  def initialize
-    @CAPACITY = 10
-    @bikes = [] 
-  end
-
-  def << (bike)
-    @bikes << bike
-  end
-
-  def to_s
-    @bikes.to_s
-  end
-
-  def release_bike
-    @bikes.pop
-  end
-
-
-  
-  def report
-
-  end
-end
-
-##############################################################
-
-class Van
-
-  attr_accessor :bikes
-
-  def initialize
-    @CAPACITY = 8
-    @bikes = []
-  end
-
-  def << (bike)
-    @bikes << bike
-  end
-
-  def removebike
-    @bikes.pop
-  end
-
-  def deliver
-  end
-end
-
-##############################################################
-
-class Garage
-
-  attr_accessor :bikes
-  def initialize 
-    @bikes = []
-  end
-
-  def << (bike)
-    @bikes << bike
-  end
-
-  def realeasebikes
-    @bikes.pop
-  end
-
-  def fixbikes
-    @bikes.each{|bike| bike.fixbike }
-  end
-end
-
-##############################################################
-
-
-
-class Person
-
-  attr_accessor :bike
-  #bike and bike= methods are created to get and set repectivitly 
-
-  def initialize(id , status)
-    @id, @status = id, status
-  end
-
-  # def assign_bike(bike)
-  #   @bike = bike 
-  # end
-
-  # def bike
-  #   @bike
-  # end 
-
-    
-  def status
-    @status
-  end
-
-  def rideBike
-    #rand(4).odd? ? puts {"I like to ride my Bycle I like to ride it fast" }: puts {"Haaaaaaallllllllllaaaaaaa"}
-    rand(4).odd? ? @bike.breakBike : true
-  end  
-
-  def returnBike
-    #return_bike = @bike
-    #@bike = nil
-    #return_bike
-  @bike and remove_instance_variable(:@bike)  
-  end             
-
-  def to_s
-    #Ask teacher how to print the id of bike in few lines could use a block method
-    puts "The persons id is: #{@id} - The status of the person is: #{@status} - The bike assign to is: #{@bike ? @bike : "No bike assigned"}"
-  end
-
-end
-
-
-##############################################################
 
 class Control
 
@@ -156,6 +12,7 @@ class Control
 
       @van = Van.new
       @garage = Garage.new
+      @people = []
 
      createStation
      createPeople
@@ -176,41 +33,53 @@ class Control
       10.times do |i| 
         @station << Bike.new(i + 1, true)   
       end 
-      puts @station.inspect
-      #puts @station.to_s
+      puts("All the bikes have been created!!!\n\n")
+      @station.bikes.each{|bike| puts bike }
+   
+      
       
   end
 
   def createPeople
-     @people = []
+     
      #How do I refactor this to make it init an array and assign in one line.
 
     10.times do |i| 
       @people << Person.new(i + 1, rand(2).zero?)
     end
 
-    #puts @people.to_s
+    puts("\nAll the people have been created!!!\n\n")
+    @people.each{|person| puts person }
+    
+
   end
 
   def rentBike
-
-    @people.each { |person| person.status ? person.bike=( @station.release_bike ) : false }   
-    puts "After bike assigned to person ---------------------------------"
-    @people.each { |person| person.to_s}
    
+    @people.each do |person|
+      person.bike = @station.release_bike if person.status
+    end 
+   
+    puts "\nThese people have rented bikes \n\n"
+    @people.each { |person| puts person if person.bike }   
   end
 
   def rideBike
-    @people.each{ |person| person.bike ? person.rideBike : false}
-      puts "After person rides bike --------------------------------"
-     @people.each { |person| puts (person.bike ?  person.bike : "At home chilling")} 
-     puts @station.bikes.inspect
+      @people.each{ |person| person.rideBike if person.bike }
+      
+     puts "\nI want to ride my bicycle!!! These bikes are broken \n\n"
+     @people.each do |person|
+       puts person.bike if person.bike && !person.bike.functioning?
+     end
+     puts "\n"
   end
 
   def returnBike
     
     puts "After person returns bike ------------------------------------"
-    @people.each{ |person|  person.bike ? @station << person.returnBike : false }
+    @people.each do |person|
+      @station << person.return_bike if person.bike
+    end
     
     puts @station.bikes.inspect
     #puts @station.to_s
@@ -221,12 +90,19 @@ class Control
     puts "Check broken bike"
     #puts @station.bikes.inspect
     
-    puts "Print station"
-    puts @station
+    puts "Print station, count: #{@station.bikes.count}"
+    puts @station    
 
     puts "Print van"
     #code smell double call of some bikes see outout
-    @station.bikes.each{ |bike| puts( bike.functioning ? "All is good" : @van << (bike) ) } 
+    @station.bikes.each do |bike| 
+      if bike.functioning?
+        puts "All is good"
+      else
+        @van << bike
+      end
+      # puts( bike.functioning? ? "All is good" : @van << (bike) ) 
+    end
     
     puts "Print Van Array"
     puts @van.bikes.to_s
