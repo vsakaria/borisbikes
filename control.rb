@@ -11,14 +11,15 @@ class Control
 
       @van = Van.new
       @garage = Garage.new
+      @station = Station.new
       @people = []
 
-     createStation
-     createPeople
+     create_station
+     create_people
      rentBike
      rideBike #here bikes are randomly broken
      returnBike
-     pickUpBrokenBikes
+     pick_up_broken_bikes
      delieverbrokenbikes
      fixbikes
      collectbikes
@@ -26,8 +27,7 @@ class Control
 
   end
 
-  def createStation
-     @station = Station.new
+  def create_station
       
       10.times do |i| 
         @station << Bike.new(i + 1, true)   
@@ -36,8 +36,7 @@ class Control
       @station.bikes.each{|bike| puts bike }
   end
 
-  def createPeople
-    
+  def create_people
     10.times do |i| 
       @people << Person.new(i + 1, rand(2).zero?)
     end
@@ -48,50 +47,47 @@ class Control
   end
 
   def rentBike
-   
     @people.each do |person|
-    person.bike = @station.release_bike if person.status
+      person.rent_bike(@station) if person.needs_bike?
     end 
+   
+      # person.bike = @station.release_bike if person.status
+  
    
     puts "\nThese people have rented bikes \n\n"
     @people.each { |person| puts person if person.bike }   
   end
 
   def rideBike
-      @people.each{ |person| person.rideBike if person.bike }
+    @people.each do |person| 
+      person.rides_bike if person.has_bike 
+    end
       
-     puts "\nI want to ride my bicycle!!! These bikes are broken \n\n"
-     @people.each do |person|
-     puts person.bike if person.bike && !person.bike.functioning?
-     end
-    
+    puts "\nI want to ride my bicycle!!! These bikes are broken \n\n"
+    @people.each do |person|
+      puts person.bike if person.bike && !person.bike.functioning?
+    end
   end
 
   def returnBike
-    
       @people.each do |person|
-      @station << person.return_bike if person.bike
-      end
-
-      puts "\nThese bikes have been returned \n\n"
-
-      @station.bikes.each{|bike| puts bike }
-    
+        @station.recieves_bike(person.return_bike) if person.has_bike
   end
 
-  def pickUpBrokenBikes 
+      puts "\nThese bikes have been returned \n\n"
+      @station.bikes.each{|bike| puts bike }
+  end
 
-    @station.bikes.each do |bike| 
-      @van << @station.bikes.pop if !bike.functioning?
-     end
+  def pick_up_broken_bikes 
+    @van.pick_up(@station.release_broken_bikes)
     
     puts "\nThese bikes are broken and have been put into van\n\n"
     @van.bikes.each{|bike| puts bike}
-  
   end
 
   def delieverbrokenbikes
-    @van.bikes.count.times { @garage<<( @van.removebike )}
+    @garage.recieve_bikes(@van.deliever_broken_bikes)
+
     puts "\nThese bikes have been put into Garage \n\n"
     @garage.bikes.each{ |bike| puts bike} 
   end 
@@ -103,6 +99,8 @@ class Control
   end
 
   def collectbikes
+
+      #@van.collect_bikes(@garage.release_bikes)
       
       @garage.bikes.count.times { @van << @garage.realeasebikes} 
       puts "\nExcellent now we have collected the broken bikes and are heading back to the station\n\n"
@@ -111,6 +109,8 @@ class Control
   end
 
   def dockbike 
+      #@station_recieves_bikes(@van.delivers_bikes)
+
       puts "\nGreat so these are the bikes in the station now\n\n"
       @station.bikes.each{|bike| puts bike}
 
@@ -121,5 +121,6 @@ class Control
 end 
 
 c = Control.new
+
 
 

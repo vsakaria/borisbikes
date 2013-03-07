@@ -15,6 +15,11 @@ class Van
     @bikes.pop
   end
 
-  def deliver
+  def pick_up(broken_bikes)
+    broken_bikes.each{ |bike| @bikes << bike } 
   end
+
+  def deliever_broken_bikes
+    @bikes.each.pop
+  end 
 end
